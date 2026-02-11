@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meine Website</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 100px;
+            background-color: #f4f4f4;
+        }
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h1>Willkommen auf meiner Website</h1>
+    <p>Besucher gesamt: <span id="counter">Lädt...</span></p>
+    <h3>Besucher nach Ländern:</h3>
+    <ul id="countries"></ul>
+</div>
+
+<script>
+const apiURL = "https://api.countapi.xyz";
+
+async function getCountry() {
+    const res = await fetch("https://ipwho.is/");
+    const data = await res.json();
+    return data.country;
+}
+
+async function updateCounter() {
+    const country = await getCountry();
+
+    const countRes = await fetch(apiURL + "/hit/meine-website/gesamt");
+    const countData = await countRes.json();
+    document.getElementById("counter").innerText = countData.value;
+
+    const countryRes = await fetch(apiURL + "/hit/meine-website/" + country);
+    await countryRes.json();
+
+    loadCountries();
+}
+
+async function loadCountries() {
+    const res = await fetch(apiURL + "/get/meine-website");
+    const data = await res.json();
+
+    const list = document.getElementById("countries");
+    list.innerHTML = "";
+
+    for (let key in data.value) {
+        if (key !== "gesamt") {
+            const li = document.createElement("li");
+            li.innerText = key + ": " + data.value[key];
+            list.appendChild(li);
+        }
+    }
+}
+
+updateCounter();
+</script>
+
+</body>
+</html>
